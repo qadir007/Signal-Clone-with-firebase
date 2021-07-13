@@ -1,8 +1,11 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, View, Platform } from "react-native";
-import { Button, Image, Input } from "react-native-elements";
-
+import React, { useState, useEffect } from "react";
+import {
+  KeyboardAvoidingView,
+  StyleSheet,
+  StatusBar,
+  View,
+} from "react-native";
+import { Button, Input, Image } from "react-native-elements";
 import { auth } from "../firebase/firebase";
 
 const LoginScreen = ({ navigation }) => {
@@ -15,20 +18,18 @@ const LoginScreen = ({ navigation }) => {
         navigation.replace("Home");
       }
     });
+
     return unsubscribe;
   }, []);
 
-  const login = () => {
+  const signin = async () => {
     auth
       .signInWithEmailAndPassword(email, password)
-      .catch((error) => alert(error.message));
+      .catch((error) => alert(error));
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={(Platform.OS = "ios" ? "padding" : "height")}
-      style={styles.contaienr}
-    >
+    <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <StatusBar style="light" />
       <Image
         source={{
@@ -37,44 +38,44 @@ const LoginScreen = ({ navigation }) => {
         }}
         style={{ width: 200, height: 200 }}
       />
-      <View style={styles.inputContaienr}>
+      <View style={styles.inputContainer}>
         <Input
           placeholder="Email"
-          autoFocus
           type="email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => setEmail(text)}
         />
         <Input
           placeholder="Password"
           secureTextEntry
           type="password"
           value={password}
-          onChangeText={setPassword}
-          onSubmitEditing={login}
+          onChangeText={(text) => setPassword(text)}
         />
       </View>
-      <Button containerStyle={styles.button} onPress={login} title="Login" />
+      <Button containerStyle={styles.button} title="Login" onPress={signin} />
       <Button
-        containerStyle={styles.button}
         onPress={() => navigation.navigate("Register")}
-        type="outline"
+        containerStyle={styles.button}
         title="Register"
+        type="outline"
       />
       <View style={{ height: 100 }} />
     </KeyboardAvoidingView>
   );
 };
 
+export default LoginScreen;
+
 const styles = StyleSheet.create({
-  contaienr: {
+  container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
     backgroundColor: "white",
   },
-  inputContaienr: {
+  inputContainer: {
     width: 300,
   },
   button: {
@@ -82,5 +83,3 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
-
-export default LoginScreen;

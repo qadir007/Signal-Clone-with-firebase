@@ -1,112 +1,130 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useLayoutEffect, useState } from "react";
-import { KeyboardAvoidingView, StyleSheet, View, Platform } from "react-native";
-import { Button, Image, Input, Text } from "react-native-elements";
-
+import React, { useState, useLayoutEffect } from "react";
+import {
+  KeyboardAvoidingView,
+  StyleSheet,
+  StatusBar,
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { Button, Input, Image } from "react-native-elements";
 import { auth } from "../firebase/firebase";
+import * as ImagePicker from 'expo-image-picker';
 
 const RegisterScreen = ({ navigation }) => {
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [image, setImage] = useState("https://censur.es/wp-content/uploads/2019/03/default-avatar.png");
 
-  const register = () => {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerBackTitle: "Login",
+    });
+  }, [navigation]);
+
+  const register = async () => {
     auth
       .createUserWithEmailAndPassword(email, password)
       .then((authUser) => {
         authUser.user.updateProfile({
           displayName: name,
-          photoUrl:
-            imageUrl ||
-            "https://cencup.com/wp-content/uploads/2019/07/avatar-placeholder.png",
+          photoURL: image,
         });
+        console.log(image);
       })
       .catch((error) => alert(error.message));
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerBackTitle: "Back to Login",
+  const selectImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
-  }, [navigation]);
+
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
 
   return (
-    <KeyboardAvoidingView
-      behavior={(Platform.OS = "ios" ? "padding" : "height")}
-      style={styles.contaienr}
-    >
+    <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <StatusBar style="light" />
-      <Text h3 style={{ marginBottom: 50 }}>
-        Create an Afchat Account
+      <Text h2 style={{ marginTop: 20, fontSize: 24 }}>
+        Create a Signal account
       </Text>
       <Image
         source={{
           uri:
             "https://blog.mozilla.org/internetcitizen/files/2018/08/signal-logo.png",
         }}
-        style={{ width: 200, height: 200 }}
+        style={{ width: 200, height: 200, marginBottom: 20 }}
       />
-      <View style={styles.inputContaienr}>
+      <View style={styles.inputContainer}>
         <Input
           placeholder="Full Name"
-          autoFocus
           type="text"
           value={name}
-          onChangeText={setName}
+          onChangeText={(text) => setName(text)}
         />
         <Input
           placeholder="Email"
           type="email"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(text) => setEmail(text)}
         />
         <Input
           placeholder="Password"
           secureTextEntry
           type="password"
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => setPassword(text)}
         />
-        <Input
-          placeholder="Profile picture Url (optional)"
-          type="email"
-          value={imageUrl}
-          onChangeText={setImageUrl}
-          onSubmitEditing={register}
-        />
+        <TouchableOpacity style={styles.selectImage} onPress={selectImage}>
+          <Text style={{ color: "white", alignSelf: "center" }}>Select profile picture from gallery (optional)</Text>
+        </TouchableOpacity>
       </View>
+      <Button containerStyle={styles.button} title="Register" onPress={register}/>
       <Button
-        containerStyle={styles.button}
-        onPress={register}
-        title="Register"
-      />
-      <Button
-        containerStyle={styles.button}
         onPress={() => navigation.navigate("Login")}
-        type="outline"
+        containerStyle={styles.button}
         title="Login"
+        type="outline"
       />
       <View style={{ height: 100 }} />
     </KeyboardAvoidingView>
   );
 };
 
+export default RegisterScreen;
+
 const styles = StyleSheet.create({
-  contaienr: {
+  container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
     backgroundColor: "white",
   },
-  inputContaienr: {
+  inputContainer: {
     width: 300,
   },
   button: {
     width: 200,
     marginTop: 10,
   },
+  selectImage: {
+    width: 310,
+    alignSelf: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 25,
+    color: "white",
+    backgroundColor: '#FF6C6C',
+    borderColor: "transparent"
+  }
 });
-
-export default RegisterScreen;

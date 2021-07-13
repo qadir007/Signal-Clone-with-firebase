@@ -1,17 +1,26 @@
-import React, { useLayoutEffect, useState, useEffect } from "react";
-import { SafeAreaView, ScrollView, View } from "react-native";
-import { TouchableOpacity } from "react-native";
-import { StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { useLayoutEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { SafeAreaView } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { Avatar } from "react-native-elements";
-import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
-
+import { TouchableOpacity } from "react-native-gesture-handler";
 import CustomListItem from "../components/CustomListItem";
 import { auth, db } from "../firebase/firebase";
+import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
   const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const signOutUser = () => {
+    auth.signOut().then(() => {
+      navigation.replace("Login");
+    });
+  };
 
   useEffect(() => {
+    setLoading(true);
     const unsubscribe = db.collection("chats").onSnapshot((snapshot) => {
       setChats(
         snapshot.docs.map((doc) => ({
@@ -20,58 +29,58 @@ const HomeScreen = ({ navigation }) => {
         }))
       );
     });
+    setLoading(false);
 
     return unsubscribe;
   }, []);
 
-  const signOut = () => {
-    auth.signOut().then(() => {
-      navigation.replace("Login");
-    });
-  };
   useLayoutEffect(() => {
+    setLoading(true);
     navigation.setOptions({
-      title: "Afchat",
-      headerStyle: { backgroundColor: "#fff" },
-      headerTitleStyle: { color: "black" },
-      headerTintColor: "black",
+      title: "Signal by Dawid Roch",
+      headerStyle: { backgroundColor: "#2C6EBD" },
+      headerTitleStyle: { color: "white" },
+      headerTintColor: "white",
       headerLeft: () => (
         <View style={{ marginLeft: 20 }}>
-          <TouchableOpacity activeOpacity={0.5} onPress={signOut}>
-            <Avatar rounded source={{ uri: auth?.currentUser?.photoUrl }} />
+          <TouchableOpacity onPress={signOutUser} activeOpacity={0.5}>
+            <Avatar rounded source={{ uri: auth?.currentUser?.photoURL }} />
           </TouchableOpacity>
         </View>
       ),
       headerRight: () => (
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: 80,
             marginRight: 20,
+            flexDirection: "row",
+            width: 70,
+            justifyContent: "space-between",
           }}
         >
           <TouchableOpacity activeOpacity={0.5}>
-            <AntDesign name="camerao" size={24} color="black" />
+            <AntDesign name="camerao" size={24} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.5}>
-            <SimpleLineIcons
-              name="pencil"
-              onPress={() => navigation.navigate("AddChat")}
-              size={24}
-              color="black"
-            />
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AddChat")}
+            activeOpacity={0.5}
+          >
+            <SimpleLineIcons name="pencil" size={24} color="white" />
           </TouchableOpacity>
         </View>
       ),
     });
-  }, []);
+    setLoading(false);
+  }, [navigation]);
 
   const enterChat = (id, chatName) => {
-    navigation.navigate("Chat", { id, chatName });
+    navigation.navigate("Chat", {
+      id: id,
+      chatName: chatName,
+    });
   };
 
   return (
+    loading ? <ActivityIndicator size="large" color="gray" style={{ flex: 0.7 }}/> :
     <SafeAreaView>
       <ScrollView style={styles.container}>
         {chats.map(({ id, data: { chatName } }) => (
@@ -87,10 +96,10 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
+export default HomeScreen;
+
 const styles = StyleSheet.create({
   container: {
     height: "100%",
   },
 });
-
-export default HomeScreen;

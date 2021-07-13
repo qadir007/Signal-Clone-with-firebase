@@ -1,23 +1,23 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import "react-native-gesture-handler";
 import React from "react";
 import { StyleSheet } from "react-native";
-import "react-native-gesture-handler";
-import AddChatScreen from "./app/screens/AddChatScreen";
-import HomeScreen from "./app/screens/HomeScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./app/screens/LoginScreen";
 import RegisterScreen from "./app/screens/RegisterScreen";
+import HomeScreen from "./app/screens/HomeScreen";
+import AddChatScreen from "./app/screens/AddChatScreen";
 import ChatScreen from "./app/screens/ChatScreen";
-import Slider from "./app/components/slider";
 
 const Stack = createStackNavigator();
 
 const globalScreenOptions = {
-  headerStyle: { backgroundColor: "#2C6BED" },
+  headerStyle: { backgroundColor: "#2C6EBD" },
   headerTitleStyle: { color: "white" },
   headerTintColor: "white",
 };
-const App = () => {
+
+export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={globalScreenOptions}>
@@ -29,10 +29,13 @@ const App = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
-
-export default App;
